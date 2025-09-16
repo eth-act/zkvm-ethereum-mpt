@@ -195,7 +195,9 @@ impl<M: Memoization> Node<M> {
             Node::Extension(_, child, _) => {
                 child.resolve_digests(rlp_by_digest)?;
                 if !matches!(**child, Node::Branch(..) | Node::Digest(..)) {
-                    return Err(alloy_rlp::Error::Custom("extension node with invalid child"));
+                    return Err(alloy_rlp::Error::Custom(
+                        "extension node with invalid child",
+                    ));
                 }
             }
             Node::Branch(children, _) => {
@@ -263,7 +265,9 @@ impl<M: Memoization> Decodable for Node<M> {
                 // leaf or extension node: 2-item node [ encodedPath, v ]
                 // they are distinguished by a flag in the first nibble of the encodedPath
                 2 => {
-                    let [mut encode_path, mut v] = items.as_slice() else { unreachable!() };
+                    let [mut encode_path, mut v] = items.as_slice() else {
+                        unreachable!()
+                    };
                     let (path, is_leaf) = decode_path(&mut encode_path)?;
                     if is_leaf {
                         Ok(Node::Leaf(path, Bytes::decode(&mut v)?, M::default()))
@@ -350,9 +354,9 @@ impl NodeRef<'_> {
         match node {
             Node::Null => NodeRef::Empty,
             Node::Digest(digest) => NodeRef::Digest(digest),
-            Node::Leaf(.., cache) | Node::Extension(.., cache) | Node::Branch(.., cache) => {
-                cache.get().map_or_else(|| NodeRef::Rlp(node.rlp_encoded()), NodeRef::Cached)
-            }
+            Node::Leaf(.., cache) | Node::Extension(.., cache) | Node::Branch(.., cache) => cache
+                .get()
+                .map_or_else(|| NodeRef::Rlp(node.rlp_encoded()), NodeRef::Cached),
         }
     }
 
@@ -404,7 +408,10 @@ impl Encodable for NodeRef<'_> {
 #[inline]
 fn encode_list_header(payload_length: usize) -> Vec<u8> {
     debug_assert!(payload_length > 1);
-    let header = Header { list: true, payload_length };
+    let header = Header {
+        list: true,
+        payload_length,
+    };
     let mut out = Vec::with_capacity(header.length() + payload_length);
     header.encode(&mut out);
     out
