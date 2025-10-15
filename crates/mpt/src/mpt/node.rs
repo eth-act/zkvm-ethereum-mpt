@@ -19,7 +19,8 @@ use super::{
 };
 use alloy_primitives::{Bytes, B256};
 use alloy_trie::Nibbles;
-use std::mem;
+use core::mem;
+use alloc::boxed::Box;
 
 pub(super) type Child<M> = Box<Node<M>>;
 

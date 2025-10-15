@@ -20,7 +20,7 @@
 
 use alloy_primitives::hex;
 use alloy_trie::Nibbles;
-use std::{fmt, ops::Deref};
+use core::{fmt, ops::Deref};
 
 /// A slice of bytes representing nibbles.
 #[derive(Clone, Copy)]

@@ -1,6 +1,5 @@
 //! Provides an optimized sparse MPT implementation for the stateless validator guest program.
 #![allow(warnings)]
-
 // Copyright 2025 RISC Zero, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +13,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#![no_std]
 
-use core::marker::PhantomData;
-use std::{cell::RefCell, collections::hash_map::Entry};
+extern crate alloc;
 
-use alloy_primitives::{Address, B256, Bytes, KECCAK256_EMPTY, U256, keccak256, map::B256Map};
+use alloc::vec::Vec;
+use core::{cell::RefCell, marker::PhantomData};
+
+use alloy_primitives::{
+    Address, B256, Bytes, KECCAK256_EMPTY, U256, keccak256,
+    map::{B256Map, hash_map::Entry},
+};
 use alloy_trie::{EMPTY_ROOT_HASH, TrieAccount};
 use mpt::CachedTrie;
 use reth_errors::ProviderError;
@@ -94,8 +99,7 @@ impl SparseState {
         self.storages
             .get_mut()
             .entry(hashed_address)
-            .insert_entry(RlpTrie::default())
-            .into_mut()
+            .or_insert(RlpTrie::default())
     }
 
     /// Returns a mutable version of the storage trie of the given account.
