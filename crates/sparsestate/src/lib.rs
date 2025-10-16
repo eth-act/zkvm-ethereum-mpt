@@ -22,9 +22,9 @@ use alloy_primitives::{Address, B256, Bytes, KECCAK256_EMPTY, U256, keccak256, m
 use alloy_trie::{EMPTY_ROOT_HASH, TrieAccount};
 use mpt::CachedTrie;
 use reth_errors::ProviderError;
+use reth_revm::state::Bytecode;
 use reth_stateless::{ExecutionWitness, StatelessTrie, validation::StatelessValidationError};
 use reth_trie_common::HashedPostState;
-use revm_bytecode::Bytecode;
 
 /// Zero-overhead helper for tries that only contain RLP encoded data.
 #[derive(Debug, Clone, Default)]

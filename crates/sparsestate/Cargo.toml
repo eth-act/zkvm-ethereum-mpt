@@ -6,15 +6,14 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-alloy-primitives = { version = "1.3.1", default-features = false }
+alloy-primitives = { version = "1.4.1", default-features = false }
 alloy-trie = { version = "0.9.1", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
 
-reth-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0" }
-reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0" }
-reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.7.0" }
-
-revm-bytecode = { version = "6.2.2", default-features = false }
+reth-errors = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
+reth-revm = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
 
 mpt = { path = "../mpt" }
 
