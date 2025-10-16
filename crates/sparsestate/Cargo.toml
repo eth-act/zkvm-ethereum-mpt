@@ -10,10 +10,10 @@ alloy-primitives = { version = "1.4.1", default-features = false }
 alloy-trie = { version = "0.9.1", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
 
-reth-errors = { git = "https://github.com/paradigmxyz/reth", tag = "v1.8.2" }
-reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.8.2" }
-reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.8.2" }
-reth-revm = { git = "https://github.com/paradigmxyz/reth", tag = "v1.8.2" }
+reth-errors = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
+reth-revm = { git = "https://github.com/paradigmxyz/reth", rev = "e969262c7ec48f073b8ea7920a75161e7130a98e" }
 
 mpt = { path = "../mpt" }
 
