@@ -16,7 +16,8 @@ use super::{
     memoize::Memoization,
     node::{Child, Node},
 };
-use std::slice::Iter;
+use core::slice::Iter;
+use alloc::boxed::Box;
 
 /// Implements a helper wrapper for the children of a Branch node.
 ///
