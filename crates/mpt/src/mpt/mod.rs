@@ -20,7 +20,8 @@ use children::Children;
 use memoize::{Cache, NoCache};
 use nibbles::NibbleSlice;
 use node::Node;
-use std::{cmp::PartialEq, fmt::Debug};
+use core::{cmp::PartialEq, fmt::Debug};
+use alloc::vec::Vec;
 
 mod children;
 
@@ -406,7 +407,8 @@ mod tests {
     use alloy_primitives::{b256, keccak256, Bytes, U256};
     use alloy_trie::HashBuilder;
     use children::Children;
-    use std::{borrow::Borrow, collections::BTreeMap};
+    use core::{borrow::Borrow};
+    use alloc::{collections::BTreeMap, vec, vec::Vec};
 
     const N: usize = 512;
 

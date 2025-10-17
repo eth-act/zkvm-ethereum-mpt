@@ -25,7 +25,8 @@ use alloy_primitives::{
 use alloy_rlp::{BufMut, Decodable, Encodable, Header, PayloadView, EMPTY_STRING_CODE};
 use alloy_trie::{nodes::encode_path_leaf, Nibbles, EMPTY_ROOT_HASH};
 use arrayvec::ArrayVec;
-use std::fmt;
+use core::fmt;
+use alloc::{vec, vec::Vec};
 
 /// The length in bytes of an RLP-encoded digest, i.e. hash length + 1 byte for the RLP header.
 const DIGEST_RLP_LENGTH: usize = 1 + B256::len_bytes();
@@ -436,7 +437,7 @@ fn decode_path(buf: &mut &[u8]) -> alloy_rlp::Result<(Nibbles, bool)> {
 
 fn encode_list<B, T>(values: &[B]) -> Vec<u8>
 where
-    B: std::borrow::Borrow<T>,
+    B: core::borrow::Borrow<T>,
     T: ?Sized + Encodable,
 {
     let mut payload_length = 0;

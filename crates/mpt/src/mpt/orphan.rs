@@ -227,7 +227,7 @@ mod tests {
     use crate::Trie;
     use alloy_primitives::{Bytes, B256};
     use alloy_trie::{proof::ProofRetainer, HashBuilder, Nibbles};
-    use std::{borrow::Borrow, panic};
+    use core::{borrow::Borrow, panic};
 
     fn create_eip1186_proof<K, V>(
         key: K,
