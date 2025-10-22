@@ -1,21 +1,25 @@
 [package]
-name = "sparsestate"
+name = "simple-sparse-state"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+
 alloy-primitives.workspace = true
 alloy-trie.workspace = true
-alloy-rlp.workspace = true
-
 reth-errors.workspace = true
 reth-stateless.workspace = true
-reth-trie-common.workspace = true
 reth-revm.workspace = true
+reth-trie-common.workspace = true
+simple-trie = { path = "../simple-trie" }
 
-mpt = { path = "../mpt" }
+[dev-dependencies]
+alloy-consensus = { version = "1.0.42", default-features = false }
+reth-primitives-traits.workspace = true
 
 [lints]
 workspace = true
+
+

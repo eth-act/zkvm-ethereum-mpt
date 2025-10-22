@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/mpt", "crates/sparsestate"]
+members = ["crates/mpt", "crates/simple-sparse-state", "crates/simple-trie", "crates/sparsestate"]
 resolver = "2"
 
 [workspace.package]
@@ -92,3 +92,11 @@ zero_sized_map_values = "warn"
 
 
 [workspace.dependencies]
+alloy-primitives = { version = "1.4.1", default-features = false }
+alloy-trie = { version = "0.9.1", default-features = false }
+alloy-rlp = { version = "0.3.10", default-features = false }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb", default-features = false }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb", default-features = false }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb", default-features = false }
+reth-revm = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb", default-features = false }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb", default-features = false }
