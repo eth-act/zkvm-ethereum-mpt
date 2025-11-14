@@ -239,6 +239,7 @@ impl StatelessTrie for SparseState {
     }
 }
 
+#[inline(never)]
 fn hash_triee_nodes(
     witness: &ExecutionWitness,
 ) -> alloy_primitives::map::hash_map::HashMap<
@@ -264,6 +265,7 @@ fn hash_triee_nodes(
     rlp_by_digest
 }
 
+#[inline(never)]
 fn bytecode_hashing(
     witness: &ExecutionWitness,
 ) -> alloy_primitives::map::hash_map::HashMap<
