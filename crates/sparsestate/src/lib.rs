@@ -131,22 +131,13 @@ impl StatelessTrie for SparseState {
         pre_state_root: B256,
     ) -> Result<(Self, B256Map<Bytecode>), StatelessValidationError> {
         // fist, hash all the RLP nodes once
-        let rlp_by_digest: B256Map<_> = witness
-            .state
-            .iter()
-            .map(|rlp| (keccak256(rlp), rlp.clone()))
-            .collect();
+        let rlp_by_digest = hash_triee_nodes(witness);
 
         // construct the state trie from the witness data and the given state root
         let state = RlpTrie::from_prehashed(pre_state_root, &rlp_by_digest)
             .map_err(|_| StatelessValidationError::WitnessRevealFailed { pre_state_root })?;
 
-        // hash all the supplied bytecode
-        let bytecode = witness
-            .codes
-            .iter()
-            .map(|code| (keccak256(code), Bytecode::new_raw(code.clone())))
-            .collect();
+        let bytecode = bytecode_hashing(witness);
 
         Ok((
             Self {
@@ -246,4 +237,54 @@ impl StatelessTrie for SparseState {
 
         Ok(self.state.hash())
     }
+}
+
+fn hash_triee_nodes(
+    witness: &ExecutionWitness,
+) -> alloy_primitives::map::hash_map::HashMap<
+    alloy_primitives::FixedBytes<32>,
+    Bytes,
+    alloy_primitives::map::FbBuildHasher<32>,
+> {
+    // let rlp_by_digest: B256Map<_> = witness
+    //     .state
+    //     .iter()
+    //     .map(|rlp| (keccak256(rlp), rlp.clone()))
+    //     .collect();
+
+    let mut rlp_by_digest: alloy_primitives::map::hash_map::HashMap<
+        alloy_primitives::FixedBytes<32>,
+        Bytes,
+        alloy_primitives::map::FbBuildHasher<32>,
+    > = Default::default();
+    for node in &witness.state {
+        let hash = keccak256(node);
+        rlp_by_digest.insert(hash, node.clone());
+    }
+    rlp_by_digest
+}
+
+fn bytecode_hashing(
+    witness: &ExecutionWitness,
+) -> alloy_primitives::map::hash_map::HashMap<
+    alloy_primitives::FixedBytes<32>,
+    Bytecode,
+    alloy_primitives::map::FbBuildHasher<32>,
+> {
+    // hash all the supplied bytecode
+    // let bytecode = witness
+    //     .codes
+    //     .iter()
+    //     .map(|code| (keccak256(code), Bytecode::new_raw(code.clone())))
+    //     .collect();
+    let mut bytecode: alloy_primitives::map::hash_map::HashMap<
+        alloy_primitives::FixedBytes<32>,
+        Bytecode,
+        alloy_primitives::map::FbBuildHasher<32>,
+    > = Default::default();
+    for code in &witness.codes {
+        let hash = keccak256(code);
+        bytecode.insert(hash, Bytecode::new_raw(code.clone()));
+    }
+    bytecode
 }
