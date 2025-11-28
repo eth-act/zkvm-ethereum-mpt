@@ -212,9 +212,17 @@ impl StatelessTrie for SimpleSparseState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use anyhow;
     use alloy_consensus::Header;
     use alloy_primitives::hex;
+    use std::sync::Arc;
+    use alloy_consensus::private::serde_json;
+    use guest_libs::senders::recover_signers;
+    use reth_chainspec::ChainSpec;
+    use reth_evm_ethereum::EthEvmConfig;
     use reth_primitives_traits::account::Account;
+    use reth_stateless::{Genesis, StatelessInput, stateless_validation_with_trie, validation::stateless_validation};
+    use sparsestate::SparseState;
 
     #[test]
     fn test_sparse_state() {
@@ -350,5 +358,48 @@ mod tests {
             "{}",
             trie.0.calculate_state_root(hashed_post_state).unwrap()
         );
+    }
+
+    #[test]
+    fn stateless_validation_test() {
+        let input = serde_json::from_reader::<_, StatelessInput>(std::fs::File::open(String::from("./../../test_data/rpc_block_23439901.json")).unwrap()).unwrap();
+
+        let genesis = Genesis {
+            config: input.chain_config.clone(),
+            ..Default::default()
+        };
+        let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
+        let evm_config = EthEvmConfig::new(chain_spec.clone());
+
+        let public_keys = recover_signers(input.block.body.transactions.iter())
+            .map_err(|err| anyhow::anyhow!("recovering signers: {err}")).unwrap();
+
+
+        let r_reth = stateless_validation(
+            input.block.clone(),
+            public_keys.clone(),
+            input.witness.clone(),
+            chain_spec.clone(),
+            evm_config.clone(),
+        ).expect("Stateless validation error");
+
+        let r_zeth = stateless_validation_with_trie::<SparseState, ChainSpec, EthEvmConfig>(
+            input.block.clone(),
+            public_keys.clone(),
+            input.witness.clone(),
+            chain_spec.clone(),
+            evm_config.clone(),
+        ).expect("Stateless validation error");
+
+        let r_simple = stateless_validation_with_trie::<SimpleSparseState, ChainSpec, EthEvmConfig>(
+            input.block.clone(),
+            public_keys.clone(),
+            input.witness.clone(),
+            chain_spec.clone(),
+            evm_config.clone(),
+        ).expect("Stateless validation error");
+
+        assert_eq!(r_reth, r_zeth);
+        assert_eq!(r_zeth, r_simple);
     }
 }

@@ -17,7 +17,12 @@ simple-trie = { path = "../simple-trie" }
 
 [dev-dependencies]
 alloy-consensus = { version = "1.0.42", default-features = false }
+guest-libs.workspace = true
+reth-evm-ethereum.workspace = true
+reth-chainspec.workspace = true
 reth-primitives-traits.workspace = true
+anyhow = "1.0"
+sparsestate = { path = "../sparsestate" }
 
 [lints]
 workspace = true

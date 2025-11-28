@@ -158,6 +158,7 @@ fn shorten_encoding(b: Vec<u8>) -> Vec<u8> {
     }
 }
 
+// Test cases from https://github.com/ipsilon/evmone/blob/31bf2116792032e572394e86cc99d6227e1e98b1/test/unittests/state_mpt_test.cpp#L59-L183
 #[cfg(test)]
 mod tests {
     use crate::trie::Trie;
