@@ -1,0 +1,25 @@
+[package]
+name = "benchmarks"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+reth-stateless.workspace = true
+reth-chainspec.workspace = true
+reth-evm-ethereum.workspace = true
+reth-ethereum-primitives.workspace = true
+simple-sparse-state = { path = "../simple-sparse-state" }
+sparsestate = { path = "../sparsestate" }
+serde_json = "1"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "stateless_validation"
+harness = false
+
+[lints]
+workspace = true
