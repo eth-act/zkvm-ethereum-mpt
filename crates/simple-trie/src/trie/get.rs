@@ -1,6 +1,6 @@
 //! Implementation of getting an element from the MPT trie according to the element's path value.
-use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use super::nodes::{BranchNode, DigestNode, LeafNode, TrieNode};
+use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use alloy_primitives::Bytes;
 use alloy_trie::Nibbles;
 
@@ -20,8 +20,10 @@ impl BranchNode {
         // otherwise return None.
         let common_prefix_len = self.path.common_prefix_length(&path);
         if common_prefix_len == self.path.len() {
-            if let Some(child) = self.children.get(path[common_prefix_len] as usize)
-            {
+            if path.len() == common_prefix_len {
+                return None;
+            }
+            if let Some(child) = self.children.get(path[common_prefix_len] as usize) {
                 child.get(path.slice(common_prefix_len + 1..))
             } else {
                 None

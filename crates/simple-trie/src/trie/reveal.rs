@@ -4,7 +4,7 @@
 use crate::trie::B256Map;
 use crate::trie::TrieNode;
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
-use alloy_primitives::{B256, Bytes};
+use alloy_primitives::{Bytes, B256};
 
 impl TrieNode {
     fn set_cache(&mut self, hash: B256) {
@@ -122,10 +122,32 @@ mod tests {
             6, 7, 9, 0, 15, 13, 3, 1, 11, 2, 0, 14, 7, 11, 1, 2, 10, 2, 14, 8, 14, 5, 14, 0, 9, 13,
             0, 6, 8, 1, 0, 9, 6, 1, 6, 11,
         ]);
-        trie.remove(to_remove.to_owned());
+        trie.remove_path(to_remove.to_owned());
         assert_ne!(trie.hash(), root_hash);
 
-        trie.insert(to_remove, Bytes::from(hex!("0xf84c80880de0b6b3a7640000a056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421a0c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470")));
+        trie.insert_path(to_remove, Bytes::from(hex!("0xf84c80880de0b6b3a7640000a056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421a0c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470")));
+        assert_eq!(trie.hash(), root_hash);
+    }
+
+    #[test]
+    fn reveal_small_branch_roundtrip() {
+        // Branch with one inlined leaf child at index 0 and empty branch value.
+        let root_rlp = Bytes::from(vec![
+            0xd3, 0xc2, 0x20, 0x01, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+            0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+        ]);
+        let root_hash = keccak256(&root_rlp);
+        let mut rlp_map = B256Map::default();
+        rlp_map.insert(root_hash, root_rlp);
+
+        let mut trie = Trie::reveal_from_rlp(root_hash, &rlp_map);
+        assert_eq!(trie.hash(), root_hash);
+
+        let key = Nibbles::from_nibbles([0_u8]);
+        trie.remove_path(key.clone());
+        assert_ne!(trie.hash(), root_hash);
+
+        trie.insert_path(key, Bytes::from([1_u8]));
         assert_eq!(trie.hash(), root_hash);
     }
 }
