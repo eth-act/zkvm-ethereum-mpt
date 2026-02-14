@@ -455,12 +455,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.101"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f0e0fee31ef5ed1ba1316088939cea399010ed7731dba877ed44aeb407a75ea"
-
-[[package]]
 name = "ark-bls12-381"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1821,6 +1815,18 @@ dependencies = [
  "hashbrown 0.16.1",
  "serde",
  "serde_core",
+]
+
+[[package]]
+name = "integration-tests"
+version = "0.1.0"
+dependencies = [
+ "guest-libs",
+ "reth-chainspec 1.8.2",
+ "reth-evm-ethereum",
+ "reth-stateless 1.8.2",
+ "serde_json",
+ "simple-sparse-state",
 ]
 
 [[package]]
@@ -4051,17 +4057,12 @@ dependencies = [
  "alloy-consensus",
  "alloy-primitives",
  "alloy-trie 0.9.1",
- "anyhow",
- "guest-libs",
- "reth-chainspec 1.8.2",
  "reth-errors 1.8.2",
- "reth-evm-ethereum",
  "reth-primitives-traits 1.8.2",
  "reth-revm 1.8.2",
  "reth-stateless 1.8.2",
  "reth-trie-common 1.8.2",
  "simple-trie",
- "sparsestate",
 ]
 
 [[package]]

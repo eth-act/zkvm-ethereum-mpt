@@ -4,7 +4,7 @@
 use crate::trie::B256Map;
 use crate::trie::TrieNode;
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
-use alloy_primitives::{Bytes, B256};
+use alloy_primitives::{B256, Bytes};
 
 impl TrieNode {
     fn set_cache(&mut self, hash: B256) {

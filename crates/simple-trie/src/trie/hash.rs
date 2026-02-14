@@ -1,9 +1,9 @@
 //! Hashing element implementation for different node's types of MPT.
 use super::nodes::{BranchNode, DigestNode, LeafNode, TrieNode};
-use crate::trie::rlp::encode_list_header;
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
+use crate::trie::rlp::encode_list_header;
 use alloy_primitives::private::alloy_rlp::Encodable;
-use alloy_primitives::{keccak256, B256};
+use alloy_primitives::{B256, keccak256};
 use alloy_trie::nodes::encode_path_leaf;
 
 impl TrieNode {
@@ -170,7 +170,7 @@ fn shorten_encoding(b: Vec<u8>) -> Vec<u8> {
 mod tests {
     use crate::trie::Trie;
     use alloy_primitives::private::alloy_rlp::Encodable;
-    use alloy_primitives::{hex, keccak256, Bytes};
+    use alloy_primitives::{Bytes, hex, keccak256};
     use alloy_trie::{HashBuilder, Nibbles};
     use std::vec;
 
