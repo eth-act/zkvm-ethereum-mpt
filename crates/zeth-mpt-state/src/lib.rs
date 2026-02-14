@@ -26,9 +26,9 @@ use alloy_primitives::{
 };
 use alloy_trie::{EMPTY_ROOT_HASH, TrieAccount};
 use zeth_mpt::CachedTrie;
-use reth_errors::ProviderError;
-use reth_revm::state::Bytecode;
-use reth_stateless::{ExecutionWitness, StatelessTrie, validation::StatelessValidationError};
+use revm_bytecode::Bytecode;
+use stateless::error::WitnessDbError;
+use stateless::{ExecutionWitness, StatelessTrie, validation::StatelessValidationError};
 use reth_trie_common::HashedPostState;
 
 /// Zero-overhead helper for tries that only contain RLP encoded data.
@@ -159,7 +159,7 @@ impl StatelessTrie for SparseState {
     }
 
     /// Returns the `TrieAccount` that corresponds to the `Address`.
-    fn account(&self, address: Address) -> Result<Option<TrieAccount>, ProviderError> {
+    fn account(&self, address: Address) -> Result<Option<TrieAccount>, WitnessDbError> {
         let hashed_address = keccak256(address);
         match self.state.get(hashed_address)? {
             None => Ok(None),
@@ -182,7 +182,7 @@ impl StatelessTrie for SparseState {
     }
 
     /// Returns the storage slot value that corresponds to the given (address, slot) tuple.
-    fn storage(&self, address: Address, slot: U256) -> Result<U256, ProviderError> {
+    fn storage(&self, address: Address, slot: U256) -> Result<U256, WitnessDbError> {
         let storages = self.storages.borrow();
         // storage() is always be called after account(), so the storage trie must already exist
         let storage_trie = storages.get(&keccak256(address)).unwrap();

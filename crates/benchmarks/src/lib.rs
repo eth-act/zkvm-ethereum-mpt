@@ -5,7 +5,7 @@ use alloy_primitives::{Bytes, B256, KECCAK256_EMPTY, U256, keccak256, map::B256M
 use alloy_rlp::Encodable;
 use alloy_trie::{EMPTY_ROOT_HASH, HashBuilder, Nibbles, TrieAccount, proof::ProofRetainer};
 use reth_primitives_traits::Account;
-use reth_stateless::ExecutionWitness;
+use stateless::ExecutionWitness;
 use reth_trie_common::HashedPostState;
 use std::collections::BTreeMap;
 

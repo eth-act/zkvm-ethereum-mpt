@@ -9,11 +9,9 @@ license.workspace = true
 alloy-primitives.workspace = true
 alloy-trie.workspace = true
 alloy-rlp.workspace = true
-
-reth-errors.workspace = true
-reth-stateless.workspace = true
+stateless.workspace = true
+revm-bytecode.workspace = true
 reth-trie-common.workspace = true
-reth-revm.workspace = true
 
 zeth-mpt = { path = "../zeth-mpt" }
 

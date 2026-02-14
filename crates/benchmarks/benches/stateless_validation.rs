@@ -3,7 +3,7 @@
 use benchmarks::{WitnessConfig, generate_hashed_post_state, generate_test_witness};
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use ref_mpt_state::SimpleSparseState;
-use reth_stateless::StatelessTrie;
+use stateless::StatelessTrie;
 use zeth_mpt_state::SparseState;
 
 fn bench_trie_new(c: &mut Criterion) {
