@@ -1,0 +1,33 @@
+[package]
+name = "zkvm-ethereum-mpt-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+ref-mpt = { path = "../crates/ref-mpt" }
+zeth-mpt = { path = "../crates/zeth-mpt" }
+alloy-primitives = "1.3"
+alloy-trie = "0.8"
+
+[workspace]
+
+[[bin]]
+name = "differential_hashbuilder"
+path = "fuzz_targets/differential_hashbuilder.rs"
+doc = false
+
+[[bin]]
+name = "differential_ref_zeth"
+path = "fuzz_targets/differential_ref_zeth.rs"
+doc = false
+
+[[bin]]
+name = "rlp_roundtrip"
+path = "fuzz_targets/rlp_roundtrip.rs"
+doc = false
