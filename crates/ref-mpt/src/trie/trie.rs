@@ -93,9 +93,12 @@ impl Trie {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::string::ToString;
     use alloy_primitives::{Bytes, hex, keccak256};
     use alloy_trie::{HashBuilder, Nibbles};
     use std::collections::BTreeMap;
+    use std::{println, vec};
+    use std::vec::Vec;
 
     fn simple_trie_root(entries: &BTreeMap<B256, Bytes>) -> B256 {
         let mut trie = Trie::new();

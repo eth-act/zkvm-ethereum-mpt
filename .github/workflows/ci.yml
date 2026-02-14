@@ -24,6 +24,11 @@ jobs:
       - name: Cache Cargo
         uses: Swatinem/rust-cache@v2
 
+      - name: Verify no_std
+        run: |
+          rustup target add riscv32imac-unknown-none-elf
+          cargo check --locked --target riscv32imac-unknown-none-elf -p ref-mpt -p zeth-mpt -p ref-mpt-state -p zeth-mpt-state
+
       - name: Test ref-mpt
         run: cargo test --locked -p ref-mpt
 

@@ -1,19 +1,19 @@
 //! Simple printing implementation of an MPT.
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use crate::trie::{Trie, TrieNode};
-use std::fmt::Display;
+use core::fmt::Display;
 
 impl Display for Trie {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         if self.root.is_none() {
             return write!(f, "Trie {{ EMPTY }}");
         }
 
         fn fmt_node(
-            f: &mut std::fmt::Formatter<'_>,
+            f: &mut core::fmt::Formatter<'_>,
             node: &TrieNode,
             indent: usize,
-        ) -> std::fmt::Result {
+        ) -> core::fmt::Result {
             write!(f, "{}", " ".repeat(indent))?;
             match node {
                 Branch(branch) => {

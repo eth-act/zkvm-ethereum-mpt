@@ -1,7 +1,8 @@
 //! Implementation of a 16-element branch node children array.
 //! It stores an additional bit flag indicating which child is not empty. Only for an optimization purpose
+use alloc::boxed::Box;
 use crate::trie::TrieNode;
-use std::slice::{Iter, IterMut};
+use core::slice::{Iter, IterMut};
 
 #[derive(Debug, Clone, Default)]
 pub(super) struct BranchNodeChildrenArray {
