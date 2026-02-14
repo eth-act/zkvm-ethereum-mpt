@@ -31,3 +31,8 @@ doc = false
 name = "rlp_roundtrip"
 path = "fuzz_targets/rlp_roundtrip.rs"
 doc = false
+
+[[bin]]
+name = "zeth_variable_keys"
+path = "fuzz_targets/zeth_variable_keys.rs"
+doc = false

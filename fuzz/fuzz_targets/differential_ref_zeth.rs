@@ -3,6 +3,7 @@
 use alloy_primitives::{B256, Bytes};
 use arbitrary::Arbitrary;
 use libfuzzer_sys::fuzz_target;
+use std::panic::{catch_unwind, AssertUnwindSafe};
 
 #[derive(Debug, Arbitrary)]
 enum Op {
@@ -24,6 +25,18 @@ fuzz_target!(|input: Input| {
         match op {
             Op::Insert { key, value } => {
                 if value.is_empty() {
+                    let mut zeth_probe = zeth_trie.clone();
+                    let mut cached_probe = cached_trie.clone();
+                    assert!(
+                        catch_unwind(AssertUnwindSafe(|| zeth_probe.insert(key, Bytes::new())))
+                            .is_err(),
+                        "zeth Trie accepted empty value insert"
+                    );
+                    assert!(
+                        catch_unwind(AssertUnwindSafe(|| cached_probe.insert(key, Bytes::new())))
+                            .is_err(),
+                        "zeth CachedTrie accepted empty value insert"
+                    );
                     continue;
                 }
                 let b256_key = B256::from(*key);
@@ -39,12 +52,13 @@ fuzz_target!(|input: Input| {
                 cached_trie.remove(key.as_slice());
             }
         }
+
+        // Validate after each operation so transient divergences are not masked by later ops.
+        let ref_root = ref_trie.hash();
+        let zeth_root = zeth_trie.hash_slow();
+        let cached_root = cached_trie.hash();
+
+        assert_eq!(ref_root, zeth_root, "ref-mpt root != zeth-mpt Trie root");
+        assert_eq!(ref_root, cached_root, "ref-mpt root != zeth-mpt CachedTrie root");
     }
-
-    let ref_root = ref_trie.hash();
-    let zeth_root = zeth_trie.hash_slow();
-    let cached_root = cached_trie.hash();
-
-    assert_eq!(ref_root, zeth_root, "ref-mpt root != zeth-mpt Trie root");
-    assert_eq!(ref_root, cached_root, "ref-mpt root != zeth-mpt CachedTrie root");
 });

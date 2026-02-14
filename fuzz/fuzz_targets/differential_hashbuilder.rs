@@ -19,6 +19,14 @@ struct Input {
     ops: Vec<Op>,
 }
 
+fn model_root(model: &BTreeMap<B256, Bytes>) -> B256 {
+    let mut hash_builder = HashBuilder::default();
+    for (key, value) in model {
+        hash_builder.add_leaf(Nibbles::unpack(*key), value);
+    }
+    hash_builder.root()
+}
+
 fuzz_target!(|input: Input| {
     let mut trie = Trie::new();
     let mut model = BTreeMap::<B256, Bytes>::new();
@@ -26,9 +34,6 @@ fuzz_target!(|input: Input| {
     for op in &input.ops {
         match op {
             Op::Insert { key, value } => {
-                if value.is_empty() {
-                    continue;
-                }
                 let key = B256::from(*key);
                 let value = Bytes::copy_from_slice(value);
                 trie.insert(key, value.clone());
@@ -40,15 +45,10 @@ fuzz_target!(|input: Input| {
                 model.remove(&key);
             }
         }
-    }
 
-    // Build expected root from HashBuilder (canonical Ethereum implementation)
-    let mut hash_builder = HashBuilder::default();
-    for (key, value) in &model {
-        hash_builder.add_leaf(Nibbles::unpack(*key), value);
+        // Validate after each operation so transient divergences are not masked by later ops.
+        let expected = model_root(&model);
+        let actual = trie.hash();
+        assert_eq!(actual, expected, "ref-mpt root != HashBuilder root");
     }
-    let expected = hash_builder.root();
-
-    let actual = trie.hash();
-    assert_eq!(actual, expected, "ref-mpt root != HashBuilder root");
 });
