@@ -11,10 +11,10 @@ use alloy_primitives::private::alloy_rlp::Decodable;
 use alloy_primitives::{keccak256, map::hash_map::Entry, Address, Bytes, KECCAK256_EMPTY, U256};
 use alloy_trie::{TrieAccount, EMPTY_ROOT_HASH};
 use core::cell::RefCell;
-use reth_errors::ProviderError;
-use reth_revm::bytecode::Bytecode;
-use reth_stateless::validation::StatelessValidationError;
-use reth_stateless::{ExecutionWitness, StatelessTrie};
+use revm_bytecode::Bytecode;
+use stateless::error::WitnessDbError;
+use stateless::validation::StatelessValidationError;
+use stateless::{ExecutionWitness, StatelessTrie};
 use reth_trie_common::HashedPostState;
 use ref_mpt::Trie;
 use ref_mpt::{B256Map, B256};
@@ -107,7 +107,7 @@ impl StatelessTrie for SimpleSparseState {
         ))
     }
 
-    fn account(&self, address: Address) -> Result<Option<TrieAccount>, ProviderError> {
+    fn account(&self, address: Address) -> Result<Option<TrieAccount>, WitnessDbError> {
         let hashed_address = keccak256(address);
         match self.state.get(hashed_address) {
             Some(value) => {
@@ -136,7 +136,7 @@ impl StatelessTrie for SimpleSparseState {
         }
     }
 
-    fn storage(&self, address: Address, slot: U256) -> Result<U256, ProviderError> {
+    fn storage(&self, address: Address, slot: U256) -> Result<U256, WitnessDbError> {
         match self.storages.borrow_mut().get(&keccak256(address)) {
             Some(storage_trie) => match storage_trie.get(keccak256(B256::from(slot))) {
                 Some(value) => Ok(U256::decode(&mut &value[..]).unwrap()),

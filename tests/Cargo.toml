@@ -7,10 +7,11 @@ license.workspace = true
 
 [dev-dependencies]
 ref-mpt-state = { path = "../crates/ref-mpt-state" }
-guest-libs.workspace = true
+stateless.workspace = true
 reth-evm-ethereum.workspace = true
 reth-chainspec.workspace = true
-reth-stateless.workspace = true
+alloy-primitives = { workspace = true, features = ["k256"] }
+k256 = { version = "0.13", default-features = false, features = ["ecdsa"] }
 serde_json = "1.0"
 
 [lints]
