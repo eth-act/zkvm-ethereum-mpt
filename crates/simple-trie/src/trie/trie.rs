@@ -3,8 +3,8 @@ use super::nodes::{DigestNode, LeafNode};
 use crate::trie::Trie;
 use crate::trie::TrieNode::{Digest, Leaf};
 use alloy_primitives::map::{FbBuildHasher, HashMap};
-use alloy_primitives::{Bytes, B256};
-use alloy_trie::{Nibbles, EMPTY_ROOT_HASH};
+use alloy_primitives::{B256, Bytes};
+use alloy_trie::{EMPTY_ROOT_HASH, Nibbles};
 
 /// Added only to make an IDE happy. It is defined in alloy_primitives::map
 pub type B256Map<V> = HashMap<B256, V, FbBuildHasher<32>>;
@@ -93,7 +93,7 @@ impl Trie {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloy_primitives::{hex, keccak256, Bytes};
+    use alloy_primitives::{Bytes, hex, keccak256};
     use alloy_trie::{HashBuilder, Nibbles};
     use std::collections::BTreeMap;
 

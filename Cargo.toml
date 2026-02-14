@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/mpt", "crates/simple-sparse-state", "crates/simple-trie", "crates/sparsestate"]
+members = ["crates/mpt", "crates/simple-sparse-state", "crates/simple-trie", "crates/sparsestate", "tests"]
 resolver = "2"
 
 [workspace.package]

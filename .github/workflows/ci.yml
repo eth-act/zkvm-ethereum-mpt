@@ -35,3 +35,6 @@ jobs:
 
       - name: Check simple-sparse-state (lib only)
         run: cargo check --locked -p simple-sparse-state --lib
+
+      - name: Run integration tests
+        run: cargo test --locked -p integration-tests

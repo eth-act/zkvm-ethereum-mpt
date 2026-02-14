@@ -1,0 +1,17 @@
+[package]
+name = "integration-tests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dev-dependencies]
+simple-sparse-state = { path = "../crates/simple-sparse-state" }
+guest-libs.workspace = true
+reth-evm-ethereum.workspace = true
+reth-chainspec.workspace = true
+reth-stateless.workspace = true
+serde_json = "1.0"
+
+[lints]
+workspace = true
