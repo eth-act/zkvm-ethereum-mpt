@@ -25,7 +25,7 @@ use alloy_primitives::{
     map::{B256Map, hash_map::Entry},
 };
 use alloy_trie::{EMPTY_ROOT_HASH, TrieAccount};
-use mpt::CachedTrie;
+use zeth_mpt::CachedTrie;
 use reth_errors::ProviderError;
 use reth_revm::state::Bytecode;
 use reth_stateless::{ExecutionWitness, StatelessTrie, validation::StatelessValidationError};

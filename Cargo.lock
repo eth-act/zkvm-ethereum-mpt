@@ -1822,11 +1822,11 @@ name = "integration-tests"
 version = "0.1.0"
 dependencies = [
  "guest-libs",
+ "ref-mpt-state",
  "reth-chainspec 1.8.2",
  "reth-evm-ethereum",
  "reth-stateless 1.8.2",
  "serde_json",
- "simple-sparse-state",
 ]
 
 [[package]]
@@ -1981,19 +1981,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "mpt"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "alloy-trie 0.8.1",
- "arrayvec",
- "bincode",
- "rkyv",
- "serde",
 ]
 
 [[package]]
@@ -2584,6 +2571,30 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.111",
+]
+
+[[package]]
+name = "ref-mpt"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-trie 0.8.1",
+]
+
+[[package]]
+name = "ref-mpt-state"
+version = "0.1.0"
+dependencies = [
+ "alloy-consensus",
+ "alloy-primitives",
+ "alloy-trie 0.9.1",
+ "ref-mpt",
+ "reth-errors 1.8.2",
+ "reth-primitives-traits 1.8.2",
+ "reth-revm 1.8.2",
+ "reth-stateless 1.8.2",
+ "reth-trie-common 1.8.2",
 ]
 
 [[package]]
@@ -4051,30 +4062,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
 
 [[package]]
-name = "simple-sparse-state"
-version = "0.1.0"
-dependencies = [
- "alloy-consensus",
- "alloy-primitives",
- "alloy-trie 0.9.1",
- "reth-errors 1.8.2",
- "reth-primitives-traits 1.8.2",
- "reth-revm 1.8.2",
- "reth-stateless 1.8.2",
- "reth-trie-common 1.8.2",
- "simple-trie",
-]
-
-[[package]]
-name = "simple-trie"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "alloy-trie 0.8.1",
-]
-
-[[package]]
 name = "siphasher"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4087,20 +4074,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "sparsestate"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "alloy-trie 0.9.1",
- "mpt",
- "reth-errors 1.9.3",
- "reth-revm 1.9.3",
- "reth-stateless 1.9.3",
- "reth-trie-common 1.9.3",
 ]
 
 [[package]]
@@ -4746,6 +4719,33 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.111",
+]
+
+[[package]]
+name = "zeth-mpt"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-trie 0.8.1",
+ "arrayvec",
+ "bincode",
+ "rkyv",
+ "serde",
+]
+
+[[package]]
+name = "zeth-mpt-state"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-trie 0.9.1",
+ "reth-errors 1.9.3",
+ "reth-revm 1.9.3",
+ "reth-stateless 1.9.3",
+ "reth-trie-common 1.9.3",
+ "zeth-mpt",
 ]
 
 [[package]]
