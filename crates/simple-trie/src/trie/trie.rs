@@ -94,7 +94,28 @@ impl Trie {
 mod tests {
     use super::*;
     use alloy_primitives::{hex, keccak256, Bytes};
-    use alloy_trie::Nibbles;
+    use alloy_trie::{HashBuilder, Nibbles};
+    use std::collections::BTreeMap;
+
+    fn simple_trie_root(entries: &BTreeMap<B256, Bytes>) -> B256 {
+        let mut trie = Trie::new();
+        for (key, value) in entries {
+            trie.insert(*key, value.clone());
+        }
+        trie.hash()
+    }
+
+    fn hash_builder_root(entries: &BTreeMap<B256, Bytes>) -> B256 {
+        let mut hash_builder = HashBuilder::default();
+        for (key, value) in entries {
+            hash_builder.add_leaf(Nibbles::unpack(*key), value);
+        }
+        hash_builder.root()
+    }
+
+    fn assert_roots_match(entries: &BTreeMap<B256, Bytes>) {
+        assert_eq!(simple_trie_root(entries), hash_builder_root(entries));
+    }
 
     #[test]
     fn basic_and_extension_node_test() {
@@ -363,5 +384,108 @@ mod tests {
 
         trie.remove(key);
         assert_eq!(trie.get(key), None);
+    }
+
+    #[test]
+    fn b256_overwrite_and_idempotent_remove() {
+        let mut trie = Trie::new();
+        let key = B256::repeat_byte(0x42);
+        let value1 = Bytes::from([1_u8, 2, 3]);
+        let value2 = Bytes::from([9_u8, 8, 7, 6]);
+
+        trie.insert(key, value1);
+        let root_after_first_insert = trie.hash();
+
+        trie.insert(key, value2.clone());
+        let root_after_overwrite = trie.hash();
+        assert_ne!(root_after_overwrite, root_after_first_insert);
+        assert_eq!(trie.get(key), Some(&value2));
+
+        trie.insert(key, value2);
+        assert_eq!(trie.hash(), root_after_overwrite);
+
+        trie.remove(key);
+        let root_after_remove = trie.hash();
+        assert_eq!(root_after_remove, EMPTY_ROOT_HASH);
+
+        trie.remove(key);
+        assert_eq!(trie.hash(), root_after_remove);
+    }
+
+    #[test]
+    fn unknown_key_get_and_remove_are_safe() {
+        let known_key1 = B256::repeat_byte(0x01);
+        let known_key2 = B256::repeat_byte(0x02);
+        let unknown_key = B256::repeat_byte(0x03);
+        let mut trie = Trie::new();
+
+        trie.insert(known_key1, Bytes::from([0xAA]));
+        trie.insert(known_key2, Bytes::from([0xBB]));
+        let root_before = trie.hash();
+
+        assert_eq!(trie.get(unknown_key), None);
+        trie.remove(unknown_key);
+        assert_eq!(trie.hash(), root_before);
+    }
+
+    #[test]
+    fn insertion_order_independence() {
+        let entries = [
+            (keccak256([0_u8]), Bytes::from([1_u8, 2])),
+            (keccak256([1_u8]), Bytes::from([3_u8, 4, 5])),
+            (keccak256([2_u8]), Bytes::from([6_u8])),
+            (keccak256([3_u8]), Bytes::from([7_u8, 8, 9, 10])),
+            (keccak256([4_u8]), Bytes::from([11_u8, 12])),
+        ];
+
+        let mut forward = Trie::new();
+        for (key, value) in entries.iter() {
+            forward.insert(*key, value.clone());
+        }
+        let forward_root = forward.hash();
+
+        let mut reverse = Trie::new();
+        for (key, value) in entries.iter().rev() {
+            reverse.insert(*key, value.clone());
+        }
+        let reverse_root = reverse.hash();
+
+        let ordered_map: BTreeMap<_, _> = entries.into_iter().collect();
+        assert_eq!(forward_root, reverse_root);
+        assert_eq!(forward_root, hash_builder_root(&ordered_map));
+    }
+
+    #[test]
+    fn randomized_differential_root_equivalence() {
+        let mut model = BTreeMap::<B256, Bytes>::new();
+
+        for case in 0_u8..8 {
+            model.clear();
+            for step in 0_u8..48 {
+                let key = keccak256([case, step, 0xA5]);
+                if step % 3 == 0 {
+                    model.remove(&key);
+                } else {
+                    let len = 1 + ((case as usize + step as usize) % 64);
+                    let value: Vec<u8> = (0..len)
+                        .map(|i| (i as u8) ^ case.wrapping_mul(17) ^ step.wrapping_mul(29))
+                        .collect();
+                    model.insert(key, Bytes::from(value));
+                }
+
+                assert_roots_match(&model);
+            }
+        }
+    }
+
+    #[test]
+    fn value_size_boundaries_match_hash_builder() {
+        for len in [31_usize, 32, 33] {
+            let mut entries = BTreeMap::new();
+            entries.insert(keccak256([len as u8, 1_u8]), Bytes::from(vec![0x11; len]));
+            entries.insert(keccak256([len as u8, 2_u8]), Bytes::from(vec![0x22; len]));
+            entries.insert(keccak256([len as u8, 3_u8]), Bytes::from(vec![0x33; len]));
+            assert_roots_match(&entries);
+        }
     }
 }

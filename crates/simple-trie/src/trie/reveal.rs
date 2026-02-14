@@ -128,4 +128,26 @@ mod tests {
         trie.insert_path(to_remove, Bytes::from(hex!("0xf84c80880de0b6b3a7640000a056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421a0c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470")));
         assert_eq!(trie.hash(), root_hash);
     }
+
+    #[test]
+    fn reveal_small_branch_roundtrip() {
+        // Branch with one inlined leaf child at index 0 and empty branch value.
+        let root_rlp = Bytes::from(vec![
+            0xd3, 0xc2, 0x20, 0x01, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+            0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+        ]);
+        let root_hash = keccak256(&root_rlp);
+        let mut rlp_map = B256Map::default();
+        rlp_map.insert(root_hash, root_rlp);
+
+        let mut trie = Trie::reveal_from_rlp(root_hash, &rlp_map);
+        assert_eq!(trie.hash(), root_hash);
+
+        let key = Nibbles::from_nibbles([0_u8]);
+        trie.remove_path(key.clone());
+        assert_ne!(trie.hash(), root_hash);
+
+        trie.insert_path(key, Bytes::from([1_u8]));
+        assert_eq!(trie.hash(), root_hash);
+    }
 }
