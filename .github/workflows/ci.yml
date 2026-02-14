@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Rust Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.88.0
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Verify no_std
+        run: |
+          rustup target add riscv32imac-unknown-none-elf
+          cargo check --locked --target riscv32imac-unknown-none-elf -p ref-mpt -p zeth-mpt -p ref-mpt-state -p zeth-mpt-state
+
+      - name: Test ref-mpt
+        run: cargo test --locked -p ref-mpt
+
+      - name: Test zeth-mpt
+        run: cargo test --locked -p zeth-mpt
+
+      - name: Test zeth-mpt-state (lib only)
+        run: cargo test --locked -p zeth-mpt-state --lib
+
+      - name: Check ref-mpt-state (lib only)
+        run: cargo check --locked -p ref-mpt-state --lib
+
+      - name: Run integration tests
+        run: cargo test --locked -p integration-tests

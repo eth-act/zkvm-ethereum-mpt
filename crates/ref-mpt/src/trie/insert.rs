@@ -1,4 +1,5 @@
 //! Inserting an element to MPT implementation for different node's types.
+use alloc::boxed::Box;
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use super::nodes::{BranchNode, DigestNode, LeafNode, TrieNode, BranchNodeChildrenArray};
 use alloy_primitives::Bytes;

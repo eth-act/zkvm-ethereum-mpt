@@ -1,17 +1,23 @@
 //! A sparse state implementation based on simple sparse trie.
+#![no_std]
+extern crate alloc;
+#[cfg(test)]
+extern crate std;
+
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 use alloy_primitives::private::alloy_rlp;
 use alloy_primitives::private::alloy_rlp::Decodable;
-use alloy_primitives::{Address, Bytes, KECCAK256_EMPTY, U256, keccak256, map::hash_map::Entry};
-use alloy_trie::{EMPTY_ROOT_HASH, TrieAccount};
+use alloy_primitives::{keccak256, map::hash_map::Entry, Address, Bytes, KECCAK256_EMPTY, U256};
+use alloy_trie::{TrieAccount, EMPTY_ROOT_HASH};
+use core::cell::RefCell;
 use reth_errors::ProviderError;
 use reth_revm::bytecode::Bytecode;
 use reth_stateless::validation::StatelessValidationError;
 use reth_stateless::{ExecutionWitness, StatelessTrie};
 use reth_trie_common::HashedPostState;
-use simple_trie::Nibbles;
-use simple_trie::Trie;
-use simple_trie::{B256, B256Map};
-use std::cell::RefCell;
+use ref_mpt::Trie;
+use ref_mpt::{B256Map, B256};
 
 /// Implementation of a simple sparse state based on simple_trie
 #[derive(Debug, Clone)]
@@ -24,7 +30,7 @@ pub struct SimpleSparseState {
 impl SimpleSparseState {
     /// Removes an account from the state.
     fn remove_account(&mut self, hashed_address: &B256) {
-        self.state.remove(Nibbles::unpack(hashed_address));
+        self.state.remove(*hashed_address);
         self.storages.get_mut().remove(hashed_address);
     }
 
@@ -46,14 +52,14 @@ impl SimpleSparseState {
             Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => {
                 // build the storage trie matching the storage root of the account
-                let storage_root = self.state.get(Nibbles::unpack(hashed_address)).map_or(
-                    EMPTY_ROOT_HASH,
-                    |value| {
-                        alloy_rlp::decode_exact::<TrieAccount>(value)
-                            .unwrap()
-                            .storage_root
-                    },
-                );
+                let storage_root =
+                    self.state
+                        .get(hashed_address)
+                        .map_or(EMPTY_ROOT_HASH, |value| {
+                            alloy_rlp::decode_exact::<TrieAccount>(value)
+                                .unwrap()
+                                .storage_root
+                        });
                 entry.insert(Box::new(Trie::reveal_from_rlp(
                     storage_root,
                     &self.rlp_by_digest,
@@ -103,9 +109,7 @@ impl StatelessTrie for SimpleSparseState {
 
     fn account(&self, address: Address) -> Result<Option<TrieAccount>, ProviderError> {
         let hashed_address = keccak256(address);
-        let key = Nibbles::unpack(hashed_address);
-
-        match self.state.get(key) {
+        match self.state.get(hashed_address) {
             Some(value) => {
                 match alloy_rlp::decode_exact(value.as_ref()) as Result<TrieAccount, _> {
                     Ok(account) => {
@@ -134,13 +138,10 @@ impl StatelessTrie for SimpleSparseState {
 
     fn storage(&self, address: Address, slot: U256) -> Result<U256, ProviderError> {
         match self.storages.borrow_mut().get(&keccak256(address)) {
-            Some(storage_trie) => {
-                let path = Nibbles::unpack(keccak256(B256::from(slot)));
-                match storage_trie.get(path) {
-                    Some(value) => Ok(U256::decode(&mut &value[..]).unwrap()),
-                    None => Ok(U256::ZERO),
-                }
-            }
+            Some(storage_trie) => match storage_trie.get(keccak256(B256::from(slot))) {
+                Some(value) => Ok(U256::decode(&mut &value[..]).unwrap()),
+                None => Ok(U256::ZERO),
+            },
             None => Ok(U256::ZERO),
         }
     }
@@ -171,16 +172,13 @@ impl StatelessTrie for SimpleSparseState {
                     // apply all state modifications
                     for (hashed_key, value) in &storage.storage {
                         if !value.is_zero() {
-                            storage_trie.insert(
-                                Nibbles::unpack(hashed_key),
-                                alloy_rlp::encode(value).into(),
-                            );
+                            storage_trie.insert(*hashed_key, alloy_rlp::encode(value).into());
                         }
                     }
                     // removals must happen last, otherwise unresolved orphans might still exist
                     for (hashed_key, value) in &storage.storage {
                         if value.is_zero() {
-                            storage_trie.remove(Nibbles::unpack(hashed_key));
+                            storage_trie.remove(*hashed_key);
                         }
                     }
 
@@ -195,10 +193,8 @@ impl StatelessTrie for SimpleSparseState {
                 storage_root,
                 code_hash: account.bytecode_hash.unwrap_or(KECCAK256_EMPTY),
             };
-            self.state.insert(
-                Nibbles::unpack(hashed_address),
-                alloy_rlp::encode(account).into(),
-            );
+            self.state
+                .insert(hashed_address, alloy_rlp::encode(account).into());
         }
 
         removed_accounts
@@ -212,42 +208,10 @@ impl StatelessTrie for SimpleSparseState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use anyhow;
     use alloy_consensus::Header;
     use alloy_primitives::hex;
-    use std::sync::Arc;
-    use alloy_consensus::private::serde_json;
-    use reth_chainspec::ChainSpec;
-    use reth_ethereum_primitives::TransactionSigned;
-    use reth_evm_ethereum::EthEvmConfig;
     use reth_primitives_traits::account::Account;
-    use reth_stateless::{Genesis, StatelessInput, UncompressedPublicKey, stateless_validation_with_trie, validation::stateless_validation};
-    use sparsestate::SparseState;
-
-    /// Recover public keys from transaction signatures.
-    fn recover_signers<'a, I>(
-        txs: I,
-    ) -> Result<Vec<UncompressedPublicKey>, Box<dyn core::error::Error>>
-    where
-        I: IntoIterator<Item = &'a TransactionSigned>,
-    {
-        txs.into_iter()
-            .enumerate()
-            .map(|(i, tx)| {
-                tx.signature()
-                    .recover_from_prehash(&tx.signature_hash())
-                    .map(|keys| {
-                        UncompressedPublicKey(
-                            TryInto::<[u8; 65]>::try_into(
-                                keys.to_encoded_point(false).as_bytes(),
-                            )
-                            .unwrap(),
-                        )
-                    })
-                    .map_err(|e| format!("failed to recover signature for tx #{i}: {e}").into())
-            })
-            .collect::<Result<Vec<UncompressedPublicKey>, _>>()
-    }
+    use std::println;
 
     #[test]
     fn test_sparse_state() {
@@ -383,48 +347,5 @@ mod tests {
             "{}",
             trie.0.calculate_state_root(hashed_post_state).unwrap()
         );
-    }
-
-    #[test]
-    fn stateless_validation_test() {
-        let input = serde_json::from_reader::<_, StatelessInput>(std::fs::File::open(String::from("./../../test_data/rpc_block_23439901.json")).unwrap()).unwrap();
-
-        let genesis = Genesis {
-            config: input.chain_config.clone(),
-            ..Default::default()
-        };
-        let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
-        let evm_config = EthEvmConfig::new(chain_spec.clone());
-
-        let public_keys = recover_signers(input.block.body.transactions.iter())
-            .map_err(|err| anyhow::anyhow!("recovering signers: {err}")).unwrap();
-
-
-        let r_reth = stateless_validation(
-            input.block.clone(),
-            public_keys.clone(),
-            input.witness.clone(),
-            chain_spec.clone(),
-            evm_config.clone(),
-        ).expect("Stateless validation error");
-
-        let r_zeth = stateless_validation_with_trie::<SparseState, ChainSpec, EthEvmConfig>(
-            input.block.clone(),
-            public_keys.clone(),
-            input.witness.clone(),
-            chain_spec.clone(),
-            evm_config.clone(),
-        ).expect("Stateless validation error");
-
-        let r_simple = stateless_validation_with_trie::<SimpleSparseState, ChainSpec, EthEvmConfig>(
-            input.block.clone(),
-            public_keys.clone(),
-            input.witness.clone(),
-            chain_spec.clone(),
-            evm_config.clone(),
-        ).expect("Stateless validation error");
-
-        assert_eq!(r_reth, r_zeth);
-        assert_eq!(r_zeth, r_simple);
     }
 }

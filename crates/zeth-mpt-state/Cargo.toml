@@ -1,5 +1,5 @@
 [package]
-name = "sparsestate"
+name = "zeth-mpt-state"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -15,7 +15,7 @@ reth-stateless.workspace = true
 reth-trie-common.workspace = true
 reth-revm.workspace = true
 
-mpt = { path = "../mpt" }
+zeth-mpt = { path = "../zeth-mpt" }
 
 [lints]
 workspace = true

@@ -10,8 +10,8 @@ reth-stateless.workspace = true
 reth-chainspec.workspace = true
 reth-evm-ethereum.workspace = true
 reth-ethereum-primitives.workspace = true
-simple-sparse-state = { path = "../simple-sparse-state" }
-sparsestate = { path = "../sparsestate" }
+ref-mpt-state = { path = "../ref-mpt-state" }
+zeth-mpt-state = { path = "../zeth-mpt-state" }
 serde_json = "1"
 
 [dev-dependencies]

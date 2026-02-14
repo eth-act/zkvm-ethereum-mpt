@@ -1,6 +1,7 @@
 //! Removing an element from MPT implementation for different node's types.
-use crate::trie::TrieNode::{Branch, Digest, Leaf};
+use alloc::boxed::Box;
 use super::nodes::{BranchNode, LeafNode, TrieNode};
+use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use alloy_trie::Nibbles;
 
 impl BranchNode {
@@ -18,6 +19,9 @@ impl BranchNode {
     fn remove(&mut self, path: Nibbles) {
         let common_prefix_len = self.path.common_prefix_length(&path);
         if common_prefix_len == self.path.len() {
+            if path.len() == common_prefix_len {
+                return;
+            }
             let idx = path.at(common_prefix_len);
             let maybe_child = self.children.get_mut(idx);
             match maybe_child {

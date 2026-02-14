@@ -1,18 +1,22 @@
 //! Implementation of a 16-element branch node children array.
 //! It stores an additional bit flag indicating which child is not empty. Only for an optimization purpose
-use std::slice::{Iter, IterMut};
+use alloc::boxed::Box;
 use crate::trie::TrieNode;
+use core::slice::{Iter, IterMut};
 
 #[derive(Debug, Clone, Default)]
 pub(super) struct BranchNodeChildrenArray {
     children: [Option<Box<TrieNode>>; 16],
-    flags: u16
+    flags: u16,
 }
 
 impl BranchNodeChildrenArray {
     #[inline]
     pub(super) fn new() -> Self {
-        Self { children: [const { None }; 16], flags: 0 }
+        Self {
+            children: [const { None }; 16],
+            flags: 0,
+        }
     }
 
     #[inline]
@@ -50,15 +54,17 @@ impl BranchNodeChildrenArray {
 
     #[inline]
     pub(super) fn one_child_left(&mut self) -> Option<(usize, &mut Box<TrieNode>)> {
-        if self.flags & (self.flags - 1) == 0 {
-            let idx = self.flags.trailing_zeros();
-            unsafe {
-                Some((idx as usize, self.children.get_unchecked_mut(idx as usize).as_mut().unwrap()))
-            }
-        } else {
+        if self.flags == 0 || self.flags & (self.flags - 1) != 0 {
             None
+        } else {
+            let idx = self.flags.trailing_zeros() as usize;
+            Some((
+                idx,
+                self.children[idx]
+                    .as_mut()
+                    .expect("MPT: Inconsistent branch children flags"),
+            ))
         }
-
     }
 
     #[inline]

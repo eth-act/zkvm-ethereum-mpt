@@ -8,8 +8,8 @@ use reth_evm_ethereum::EthEvmConfig;
 use reth_stateless::{
     Genesis, StatelessInput, stateless_validation_with_trie, validation::stateless_validation,
 };
-use simple_sparse_state::SimpleSparseState;
-use sparsestate::SparseState;
+use ref_mpt_state::SimpleSparseState;
+use zeth_mpt_state::SparseState;
 
 fn stateless_validation_benchmark(c: &mut Criterion) {
     let path = concat!(
