@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/zeth-mpt", "crates/zeth-mpt-state", "crates/ref-mpt", "crates/ref-mpt-state", "tests"]
+members = ["crates/zeth-mpt", "crates/zeth-mpt-state", "crates/ref-mpt", "crates/ref-mpt-state", "crates/benchmarks", "tests"]
 resolver = "2"
 
 [workspace.package]

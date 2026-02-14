@@ -1,0 +1,26 @@
+[package]
+name = "benchmarks"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+stateless.workspace = true
+reth-trie-common.workspace = true
+reth-primitives-traits.workspace = true
+ref-mpt-state = { path = "../ref-mpt-state" }
+zeth-mpt-state = { path = "../zeth-mpt-state" }
+alloy-primitives = { workspace = true, features = ["std"] }
+alloy-trie = { workspace = true, features = ["std"] }
+alloy-rlp.workspace = true
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "stateless_validation"
+harness = false
+
+[lints]
+workspace = true
