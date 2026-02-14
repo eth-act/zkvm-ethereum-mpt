@@ -9,16 +9,14 @@ license.workspace = true
 
 alloy-primitives.workspace = true
 alloy-trie.workspace = true
-reth-errors.workspace = true
-reth-stateless.workspace = true
-reth-revm.workspace = true
+stateless.workspace = true
+revm-bytecode.workspace = true
 reth-trie-common.workspace = true
 ref-mpt = { path = "../ref-mpt" }
 
 [dev-dependencies]
-alloy-consensus = { version = "1.0.42", default-features = false }
+alloy-consensus.workspace = true
 reth-primitives-traits.workspace = true
 
 [lints]
 workspace = true
-

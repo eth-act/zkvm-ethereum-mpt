@@ -9,11 +9,9 @@ license.workspace = true
 alloy-primitives.workspace = true
 alloy-trie.workspace = true
 alloy-rlp.workspace = true
-
-reth-errors = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
-reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
-reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
-reth-revm = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+stateless.workspace = true
+revm-bytecode.workspace = true
+reth-trie-common.workspace = true
 
 zeth-mpt = { path = "../zeth-mpt" }
 
