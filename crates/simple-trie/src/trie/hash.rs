@@ -1,9 +1,9 @@
 //! Hashing element implementation for different node's types of MPT.
-use crate::trie::TrieNode::{Branch, Digest, Leaf};
-use crate::trie::rlp::encode_list_header;
 use super::nodes::{BranchNode, DigestNode, LeafNode, TrieNode};
+use crate::trie::rlp::encode_list_header;
+use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use alloy_primitives::private::alloy_rlp::Encodable;
-use alloy_primitives::{B256, keccak256};
+use alloy_primitives::{keccak256, B256};
 use alloy_trie::nodes::encode_path_leaf;
 
 impl TrieNode {
@@ -62,8 +62,15 @@ impl BranchNode {
                     Leaf(leaf) => {
                         encoded.append(&mut shorten_encoding(leaf.encode()));
                     }
-                    _ => {
-                        child.hash()[..].encode(&mut encoded);
+                    Branch(branch) => {
+                        encoded.append(&mut shorten_encoding(branch.encode()));
+                    }
+                    Digest(digest) => {
+                        if digest.path.is_empty() {
+                            digest.value.encode(&mut encoded);
+                        } else {
+                            digest.hash()[..].encode(&mut encoded);
+                        }
                     }
                 }
             } else {
@@ -114,9 +121,9 @@ impl BranchNode {
 impl DigestNode {
     fn encode(&self) -> Vec<u8> {
         if self.path.is_empty() {
-            // We use `encode` to calculate hash only, but the hash of the digest without a path
-            // is just its value. `encode` should never be used.
-            unreachable!()
+            let mut encoded_digest = Vec::with_capacity(33);
+            self.value.encode(&mut encoded_digest);
+            encoded_digest
         } else {
             let encoded_path = encode_path_leaf(&self.path, false);
             let mut encoded_digest_with_path = encode_list_header(
@@ -163,14 +170,14 @@ fn shorten_encoding(b: Vec<u8>) -> Vec<u8> {
 mod tests {
     use crate::trie::Trie;
     use alloy_primitives::private::alloy_rlp::Encodable;
-    use alloy_primitives::{Bytes, hex, keccak256};
-    use alloy_trie::Nibbles;
+    use alloy_primitives::{hex, keccak256, Bytes};
+    use alloy_trie::{HashBuilder, Nibbles};
     use std::vec;
 
     #[test]
     fn test_leaf_node_example1() {
         let mut trie = Trie::new();
-        trie.insert(Nibbles::unpack(hex!("010203")), Bytes::from("hello"));
+        trie.insert_path(Nibbles::unpack(hex!("010203")), Bytes::from("hello"));
         assert_eq!(
             trie.hash(),
             hex!("82c8fd36022fbc91bd6b51580cfd941d3d9994017d59ab2e8293ae9c94c3ab6e")
@@ -206,8 +213,8 @@ mod tests {
         );
 
         let mut trie = Trie::new();
-        trie.insert(key1, value1);
-        trie.insert(key2, value2);
+        trie.insert_path(key1, value1);
+        trie.insert_path(key2, value2);
         assert_eq!(
             trie.hash(),
             hex!("1aaa6f712413b9a115730852323deb5f5d796c29151a60a1f55f41a25354cd26")
@@ -221,9 +228,9 @@ mod tests {
         // {0:0 1:0 2:0}
 
         let mut trie = Trie::new();
-        trie.insert(Nibbles::unpack(hex!("0x00")), Bytes::from("X"));
-        trie.insert(Nibbles::unpack(hex!("0x10")), Bytes::from("Y"));
-        trie.insert(Nibbles::unpack(hex!("0x20")), Bytes::from("Z"));
+        trie.insert_path(Nibbles::unpack(hex!("0x00")), Bytes::from("X"));
+        trie.insert_path(Nibbles::unpack(hex!("0x10")), Bytes::from("Y"));
+        trie.insert_path(Nibbles::unpack(hex!("0x20")), Bytes::from("Z"));
         assert_eq!(
             trie.hash(),
             hex!("5c5154e8d108dcf8b9946c8d33730ec8178345ce9d36e6feed44f0134515482d")
@@ -235,8 +242,8 @@ mod tests {
         // Both inserted leaves have empty path in the end.
         // 0:{0:"X", 1:"Y"}
         let mut trie = Trie::new();
-        trie.insert(Nibbles::unpack(hex!("0x00")), Bytes::from("X"));
-        trie.insert(Nibbles::unpack(hex!("0x01")), Bytes::from("Y"));
+        trie.insert_path(Nibbles::unpack(hex!("0x00")), Bytes::from("X"));
+        trie.insert_path(Nibbles::unpack(hex!("0x01")), Bytes::from("Y"));
         println!("{}", trie);
         assert_eq!(
             trie.hash(),
@@ -276,8 +283,8 @@ mod tests {
         );
 
         let mut trie = Trie::new();
-        trie.insert(key1, value1);
-        trie.insert(key2, value2);
+        trie.insert_path(key1, value1);
+        trie.insert_path(key2, value2);
         assert_eq!(
             trie.hash(),
             hex!("3eefc183db443d44810b7d925684eb07256e691d5c9cb13215660107121454f9")
@@ -336,11 +343,29 @@ mod tests {
         );
 
         let mut trie = Trie::new();
-        trie.insert(key1, value1);
-        trie.insert(key2, value2);
+        trie.insert_path(key1, value1);
+        trie.insert_path(key2, value2);
         assert_eq!(
             trie.hash(),
             hex!("ac28c08fa3ff1d0d2cc9a6423abb7af3f4dcc37aa2210727e7d3009a9b4a34e8")
         );
+    }
+
+    #[test]
+    fn test_branch_child_encoding_matches_hash_builder() {
+        let mut trie = Trie::new();
+        let mut hash_builder = HashBuilder::default();
+        let entries = [
+            (Nibbles::from_nibbles([0_u8, 0]), vec![1_u8]),
+            (Nibbles::from_nibbles([0_u8, 1]), vec![2_u8]),
+            (Nibbles::from_nibbles([1_u8, 0]), vec![3_u8]),
+        ];
+
+        for (path, value) in entries {
+            trie.insert_path(path.clone(), Bytes::from(value.clone()));
+            hash_builder.add_leaf(path, &value);
+        }
+
+        assert_eq!(trie.hash(), hash_builder.root());
     }
 }
