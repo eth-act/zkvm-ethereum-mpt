@@ -85,9 +85,12 @@ impl TrieNode {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::borrow::ToOwned;
     use crate::trie::Trie;
     use alloy_primitives::{hex, keccak256};
     use alloy_trie::Nibbles;
+    use std::vec;
+    use std::vec::Vec;
 
     #[test]
     fn reveal_from_rlp() {

@@ -1,5 +1,7 @@
 //! Implementation of a trie node rlp decoding.
 //! Based on the implementation in the ` mpt ` module of this crate.
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use super::nodes::{BranchNode, BranchNodeChildrenArray, DigestNode, LeafNode, TrieNode};
 use alloy_primitives::{B256, Bytes};

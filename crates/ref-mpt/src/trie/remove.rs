@@ -1,4 +1,5 @@
 //! Removing an element from MPT implementation for different node's types.
+use alloc::boxed::Box;
 use super::nodes::{BranchNode, LeafNode, TrieNode};
 use crate::trie::TrieNode::{Branch, Digest, Leaf};
 use alloy_trie::Nibbles;

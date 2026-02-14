@@ -9,7 +9,7 @@ mod trie;
 mod children;
 mod nodes;
 
-use std::fmt::Debug;
+use core::fmt::Debug;
 use nodes::TrieNode;
 pub use trie::B256Map;
 

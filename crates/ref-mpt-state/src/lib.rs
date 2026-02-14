@@ -1,8 +1,16 @@
 //! A sparse state implementation based on simple sparse trie.
+#![no_std]
+extern crate alloc;
+#[cfg(test)]
+extern crate std;
+
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 use alloy_primitives::private::alloy_rlp;
 use alloy_primitives::private::alloy_rlp::Decodable;
 use alloy_primitives::{keccak256, map::hash_map::Entry, Address, Bytes, KECCAK256_EMPTY, U256};
 use alloy_trie::{TrieAccount, EMPTY_ROOT_HASH};
+use core::cell::RefCell;
 use reth_errors::ProviderError;
 use reth_revm::bytecode::Bytecode;
 use reth_stateless::validation::StatelessValidationError;
@@ -10,7 +18,6 @@ use reth_stateless::{ExecutionWitness, StatelessTrie};
 use reth_trie_common::HashedPostState;
 use ref_mpt::Trie;
 use ref_mpt::{B256Map, B256};
-use std::cell::RefCell;
 
 /// Implementation of a simple sparse state based on simple_trie
 #[derive(Debug, Clone)]
@@ -204,6 +211,7 @@ mod tests {
     use alloy_consensus::Header;
     use alloy_primitives::hex;
     use reth_primitives_traits::account::Account;
+    use std::println;
 
     #[test]
     fn test_sparse_state() {
