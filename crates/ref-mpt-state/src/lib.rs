@@ -8,8 +8,8 @@ use reth_revm::bytecode::Bytecode;
 use reth_stateless::validation::StatelessValidationError;
 use reth_stateless::{ExecutionWitness, StatelessTrie};
 use reth_trie_common::HashedPostState;
-use simple_trie::Trie;
-use simple_trie::{B256Map, B256};
+use ref_mpt::Trie;
+use ref_mpt::{B256Map, B256};
 use std::cell::RefCell;
 
 /// Implementation of a simple sparse state based on simple_trie

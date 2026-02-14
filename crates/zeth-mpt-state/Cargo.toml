@@ -1,5 +1,5 @@
 [package]
-name = "sparsestate"
+name = "zeth-mpt-state"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -15,7 +15,7 @@ reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "cfde95197
 reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-revm = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 
-mpt = { path = "../mpt" }
+zeth-mpt = { path = "../zeth-mpt" }
 
 [lints]
 workspace = true

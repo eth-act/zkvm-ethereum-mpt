@@ -1,5 +1,5 @@
 [package]
-name = "simple-sparse-state"
+name = "ref-mpt-state"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -13,7 +13,7 @@ reth-errors.workspace = true
 reth-stateless.workspace = true
 reth-revm.workspace = true
 reth-trie-common.workspace = true
-simple-trie = { path = "../simple-trie" }
+ref-mpt = { path = "../ref-mpt" }
 
 [dev-dependencies]
 alloy-consensus = { version = "1.0.42", default-features = false }

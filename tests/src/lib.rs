@@ -8,7 +8,7 @@ mod tests {
     use reth_stateless::{
         stateless_validation_with_trie, validation::stateless_validation, Genesis, StatelessInput,
     };
-    use simple_sparse_state::SimpleSparseState;
+    use ref_mpt_state::SimpleSparseState;
     use std::{fs::File, path::PathBuf, sync::Arc};
 
     #[test]

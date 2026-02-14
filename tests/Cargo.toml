@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dev-dependencies]
-simple-sparse-state = { path = "../crates/simple-sparse-state" }
+ref-mpt-state = { path = "../crates/ref-mpt-state" }
 guest-libs.workspace = true
 reth-evm-ethereum.workspace = true
 reth-chainspec.workspace = true
