@@ -1,5 +1,11 @@
 [workspace]
-members = ["crates/zeth-mpt", "crates/zeth-mpt-state", "crates/ref-mpt", "crates/ref-mpt-state", "tests"]
+members = [
+    "crates/zeth-mpt",
+    "crates/zeth-mpt-state",
+    "crates/ref-mpt",
+    "crates/ref-mpt-state",
+    "tests",
+]
 resolver = "2"
 
 [workspace.package]
@@ -96,9 +102,9 @@ alloy-primitives = { version = "1.5", default-features = false }
 alloy-trie = { version = "0.9", default-features = false }
 alloy-rlp = { version = "0.3", default-features = false }
 alloy-consensus = { version = "1.5", default-features = false }
-stateless = { git = "https://github.com/paradigmxyz/stateless", branch = "main", default-features = false }
+stateless = { git = "https://github.com/paradigmxyz/stateless", rev = "68cd8e73682d21fed69670fc7eabe25e55c5cdbe", default-features = false }
 revm-bytecode = { version = "8.0.0", default-features = false }
-reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", branch = "main" }
-reth-trie-common = { git = "https://github.com/paradigmxyz/reth", branch = "main", default-features = false }
-reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", branch = "main", default-features = false }
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", branch = "main", default-features = false }
+reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0", default-features = false }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0", default-features = false }
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0", default-features = false }
